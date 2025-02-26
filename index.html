@@ -8,68 +8,118 @@
         body {
             font-family: Arial, sans-serif;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             background-color: #121212;
             color: white;
-            padding: 40px 20px; /* Increased top padding for more header space */
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 1600px;
+            margin: auto;
+            gap: 20px;
+        }
+        .header {
+            font-size: 3.5em;
+            color: #ff5500;
+        }
+        .content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-grow: 1;
+            width: 100%;
+            max-width: 1200px;
         }
         .search-container {
             width: 50%;
-        }
-        .search-container input {
-            display: none; /* Hide only the search bar */
+            text-align: left;
         }
         .player-container {
-            width: 45%;
+            width: 50%;
             border-left: 2px solid #ff5500;
             padding-left: 20px;
+            text-align: left;
+        }
+        .player-container iframe {
+            width: 100%;
+            height: 250px;
+            border: none;
         }
         ul {
             list-style-type: none;
             padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
         li {
-            margin: 10px 0;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 15px;
+            background: #1e1e1e;
+            padding: 10px;
+            border-radius: 5px;
         }
         img {
-            width: 50px;
-            height: 50px;
+            width: 80px;
+            height: 80px;
             border-radius: 5px;
         }
         a {
             color: #ff5500;
             text-decoration: underline;
             cursor: pointer;
-        }
-        iframe {
-            width: 100%;
-            height: 300px;
-            border: none;
+            font-size: 1.2em;
         }
         #status {
             margin-top: 10px;
-            font-size: 14px;
+            font-size: 1.5em;
             color: #ff5500;
+        }
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .pagination button {
+            background-color: #ff5500;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
-    <div class="search-container">
-        <h1>SoundCloud Search</h1>
-        <input type="text" id="searchQuery" placeholder="Search for a song...">
-        <button onclick="searchSoundCloud()">Search</button>
-        <p id="status"></p>
-        <ul id="results"></ul>
-    </div>
-    <div class="player-container">
-        <h2>Player</h2>
-        <iframe id="player" src="" allow="autoplay"></iframe>
+    <div class="container">
+        <div class="header">SoundCloud Search</div>
+        <div class="content">
+            <div class="search-container">
+                <p id="status"></p>
+                <ul id="results"></ul>
+                <div class="pagination" id="pagination"></div>
+            </div>
+            <div class="player-container">
+                <h2 style="font-size: 2.5em;">Player</h2>
+                <iframe id="player" src="" allow="autoplay"></iframe>
+            </div>
+        </div>
     </div>
     
     <script>
+        let currentPage = 1;
+        let resultsPerPage = 5;
+        let allResults = [];
+
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const query = urlParams.get('query');
@@ -90,36 +140,63 @@
             
             let parser = new DOMParser();
             let doc = parser.parseFromString(data.contents, "text/html");
-            let results = Array.from(doc.querySelectorAll(".result__url"))
+            allResults = Array.from(doc.querySelectorAll(".result__url"))
                 .map(link => "https://" + link.textContent.trim())
-                .filter(url => url.includes("soundcloud.com/") && !url.includes("artists.soundcloud.com") && !url.endsWith("soundcloud.com"));
+                .filter(url => url.includes("soundcloud.com/") 
+                    && !url.includes("artists.soundcloud.com") 
+                    && !url.endsWith("soundcloud.com")
+                    && !url.endsWith("signin")
+                    && !url.endsWith("/activate")
+                    && !url.endsWith("/tracks")
+                    && !url.endsWith("/soundcloud"));
             
-            document.getElementById('status').textContent = "Search completed.";
-            displayResults(results);
+            allResults = allResults.slice(0, 100); 
+            statusText.textContent = "Search completed.";
+            displayResults(1);
         }
 
-        function displayResults(results) {
+        function displayResults(page) {
+            currentPage = page;
             let resultsList = document.getElementById('results');
+            let pagination = document.getElementById('pagination');
             resultsList.innerHTML = '';
+            pagination.innerHTML = '';
             
-            results.forEach(url => {
+            let start = (page - 1) * resultsPerPage;
+            let end = start + resultsPerPage;
+            let paginatedResults = allResults.slice(start, end);
+
+            paginatedResults.forEach(url => {
                 let listItem = document.createElement("li");
-                let anchor = document.createElement("a");
-                anchor.href = "#";
-                anchor.textContent = url;
-                anchor.onclick = function() { playInPlayer(url); };
-                
                 let img = document.createElement("img");
                 fetch(`https://soundcloud.com/oembed?format=json&url=${encodeURIComponent(url)}`)
                     .then(res => res.json())
-                    .then(data => img.src = data.thumbnail_url || 'https://via.placeholder.com/50')
-                    .catch(() => img.src = 'https://via.placeholder.com/50');
+                    .then(data => img.src = data.thumbnail_url || 'https://via.placeholder.com/80')
+                    .catch(() => img.src = 'https://via.placeholder.com/80');
+                img.alt = "Thumbnail";
                 
-                img.alt = "Track Thumbnail";
+                let anchor = document.createElement("a");
+                anchor.href = "#";
+                anchor.textContent = url;
+                anchor.onclick = function(e) { e.preventDefault(); playInPlayer(url); };
+                
                 listItem.appendChild(img);
                 listItem.appendChild(anchor);
                 resultsList.appendChild(listItem);
             });
+            
+            if (page > 1) {
+                let prevButton = document.createElement("button");
+                prevButton.textContent = "Previous";
+                prevButton.onclick = function() { displayResults(page - 1); };
+                pagination.appendChild(prevButton);
+            }
+            if (end < allResults.length) {
+                let nextButton = document.createElement("button");
+                nextButton.textContent = "Next";
+                nextButton.onclick = function() { displayResults(page + 1); };
+                pagination.appendChild(nextButton);
+            }
         }
 
         function playInPlayer(url) {
