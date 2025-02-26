@@ -11,7 +11,7 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #121212;
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://i.imgur.com/4biOmOw.jpeg') no-repeat center center/cover;
             color: white;
             padding: 40px 20px;
             text-align: center;
@@ -26,8 +26,14 @@
             gap: 20px;
         }
         .header {
-            font-size: 3.5em;
-            color: #ff5500;
+            font-size: 3.9em;
+           /* color: linear-gradient(145deg, #CD7F32, #D29C6B); */
+		font-weight: bold;
+background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic effect */
+    color: transparent;
+    background-clip: text; /* Applies the gradient only to the text */
+    -webkit-background-clip: text; /* Safari support */
+    
         }
         .content {
             display: flex;
@@ -48,8 +54,8 @@
             text-align: left;
         }
         .player-container iframe {
-            width: 100%;
-            height: 250px;
+            width: 200%;
+            height: 500px;
             border: none;
         }
         ul {
@@ -184,17 +190,17 @@
                 listItem.appendChild(anchor);
                 resultsList.appendChild(listItem);
             });
-            
-            if (page > 1) {
+
+            if (currentPage > 1) {
                 let prevButton = document.createElement("button");
                 prevButton.textContent = "Previous";
-                prevButton.onclick = function() { displayResults(page - 1); };
+                prevButton.onclick = () => displayResults(currentPage - 1);
                 pagination.appendChild(prevButton);
             }
             if (end < allResults.length) {
                 let nextButton = document.createElement("button");
                 nextButton.textContent = "Next";
-                nextButton.onclick = function() { displayResults(page + 1); };
+                nextButton.onclick = () => displayResults(currentPage + 1);
                 pagination.appendChild(nextButton);
             }
         }
