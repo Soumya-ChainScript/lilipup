@@ -5,59 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SoundCloud Search</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            overflow: hidden;
             background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://i.imgur.com/4biOmOw.jpeg') no-repeat center center/cover;
             color: white;
-            padding: 40px 20px;
-            text-align: center;
         }
-        .container {
+
+        .wrapper {
+            width: 1920px;
+            height: 1080px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 90%;
-            max-width: 1600px;
-            margin: auto;
-            gap: 20px;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+            transform: translate(-50%, -50%) scale(1);
         }
+
         .header {
             font-size: 3.9em;
-           /* color: linear-gradient(145deg, #CD7F32, #D29C6B); */
-		font-weight: bold;
-background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic effect */
-    color: transparent;
-    background-clip: text; /* Applies the gradient only to the text */
-    -webkit-background-clip: text; /* Safari support */
-    
+            font-weight: bold;
+            background: linear-gradient(145deg, #C85A17, #F29F47);
+            color: transparent;
+            background-clip: text;
+            -webkit-background-clip: text;
+            text-align: center;
         }
+
         .content {
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-grow: 1;
             width: 100%;
             max-width: 1200px;
         }
+
         .search-container {
             width: 50%;
             text-align: left;
         }
+
         .player-container {
             width: 50%;
             border-left: 2px solid #ff5500;
             padding-left: 20px;
             text-align: left;
         }
+
         .player-container iframe {
-            width: 200%;
+            width: 100%;
             height: 500px;
             border: none;
         }
+
         ul {
             list-style-type: none;
             padding: 0;
@@ -65,6 +75,7 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
             flex-direction: column;
             gap: 15px;
         }
+
         li {
             display: flex;
             align-items: center;
@@ -73,28 +84,33 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
             padding: 10px;
             border-radius: 5px;
         }
+
         img {
             width: 80px;
             height: 80px;
             border-radius: 5px;
         }
+
         a {
             color: #ff5500;
             text-decoration: underline;
             cursor: pointer;
             font-size: 1.2em;
         }
+
         #status {
             margin-top: 10px;
             font-size: 1.5em;
             color: #ff5500;
         }
+
         .pagination {
             margin-top: 20px;
             display: flex;
             justify-content: center;
             gap: 10px;
         }
+
         .pagination button {
             background-color: #ff5500;
             color: white;
@@ -106,7 +122,7 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="wrapper">
         <div class="header">SoundCloud Search</div>
         <div class="content">
             <div class="search-container">
@@ -120,8 +136,18 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
             </div>
         </div>
     </div>
-    
+
     <script>
+        function adjustScale() {
+            const scaleX = window.innerWidth / 1920;
+            const scaleY = window.innerHeight / 1080;
+            const scale = Math.min(scaleX, scaleY);
+            document.querySelector('.wrapper').style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        window.addEventListener('resize', adjustScale);
+        adjustScale(); 
+
         let currentPage = 1;
         let resultsPerPage = 5;
         let allResults = [];
@@ -167,7 +193,7 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
             let pagination = document.getElementById('pagination');
             resultsList.innerHTML = '';
             pagination.innerHTML = '';
-            
+
             let start = (page - 1) * resultsPerPage;
             let end = start + resultsPerPage;
             let paginatedResults = allResults.slice(start, end);
@@ -179,13 +205,10 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
                     .then(res => res.json())
                     .then(data => img.src = data.thumbnail_url || 'https://via.placeholder.com/80')
                     .catch(() => img.src = 'https://via.placeholder.com/80');
-                img.alt = "Thumbnail";
-                
                 let anchor = document.createElement("a");
                 anchor.href = "#";
                 anchor.textContent = url;
                 anchor.onclick = function(e) { e.preventDefault(); playInPlayer(url); };
-                
                 listItem.appendChild(img);
                 listItem.appendChild(anchor);
                 resultsList.appendChild(listItem);
@@ -197,6 +220,7 @@ background: linear-gradient(145deg, #C85A17, #F29F47); /* Gradient for metallic 
                 prevButton.onclick = () => displayResults(currentPage - 1);
                 pagination.appendChild(prevButton);
             }
+
             if (end < allResults.length) {
                 let nextButton = document.createElement("button");
                 nextButton.textContent = "Next";
