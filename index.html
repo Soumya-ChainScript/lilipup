@@ -239,7 +239,11 @@
         }
 
         function playInPlayer(url) {
-            document.getElementById('player').src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}`;
+           /* document.getElementById('player').src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}`;*/
+                 url = url.replace("m.soundcloud.com", "soundcloud.com"); 
+
+            // Force the desktop embed
+                document.getElementById('player').src = `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&visual=true`;
         }
     </script>
 </body>
