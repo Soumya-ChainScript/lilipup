@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Force desktop scaling -->
+    <meta name="viewport" content="width=1920, user-scalable=no">
     <title>SoundCloud Search</title>
     <style>
         html, body {
@@ -18,6 +19,7 @@
             color: white;
         }
 
+        /* Main wrapper forced to 1920x1080 */
         .wrapper {
             width: 1920px;
             height: 1080px;
@@ -118,6 +120,13 @@
             padding: 10px 15px;
             cursor: pointer;
             font-size: 1.2em;
+        }
+
+        /* Force desktop mode on Android & iPad */
+        @media screen and (max-width: 1920px) {
+            .wrapper {
+                transform: translate(-50%, -50%) scale(0.8);
+            }
         }
     </style>
 </head>
@@ -235,3 +244,4 @@
     </script>
 </body>
 </html>
+
